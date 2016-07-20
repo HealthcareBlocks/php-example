@@ -10,12 +10,14 @@ services:
       MYSQL_PASSWORD: anothersecret
     expose:
       - "3306"
+    volumes:
+      - /data/mysql:/var/lib/mysql
   app:
-    build: .
+    image: dockerhub-org-name/my-app
     expose:
       - "9000"
     volumes:
-      - .:/app
+      - /app
     depends_on:
       - db
   nginx:
@@ -27,6 +29,11 @@ services:
       NGINX_SERVER_TYPE: php
     ports:
       - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/ssl/certs/dhparam.pem:/nginx/ssl/dhparam.pem
+      - /etc/ssl/certs/app.crt:/nginx/ssl/app.crt
+      - /etc/ssl/private/app.key:/nginx/ssl/app.key
     volumes_from:
       - app
     depends_on:
