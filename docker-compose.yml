@@ -1,0 +1,34 @@
+version: '2'
+
+services:
+  db:
+    image: healthcareblocks/mysql:5.6
+    environment:
+      MYSQL_ROOT_PASSWORD: supersecret
+      MYSQL_DATABASE: app
+      MYSQL_USER: app
+      MYSQL_PASSWORD: anothersecret
+    expose:
+      - "3306"
+  app:
+    build: .
+    expose:
+      - "9000"
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+  nginx:
+    image: healthcareblocks/nginx
+    environment:
+      NGINX_BACKEND_SERVER_ADDRESS: app
+      NGINX_BACKEND_SERVER_PORT: 9000
+      NGINX_ROOT_DIR: /app/public
+      NGINX_SERVER_TYPE: php
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes_from:
+      - app
+    depends_on:
+      - app
