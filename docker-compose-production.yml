@@ -10,17 +10,21 @@ services:
       MYSQL_PASSWORD: anothersecret
     expose:
       - "3306"
+    restart: always
     volumes:
       - /data/mysql:/var/lib/mysql
   app:
+    depends_on:
+      - db
     image: dockerhub-org-name/my-app
     expose:
       - "9000"
+    restart: always
     volumes:
       - /app
-    depends_on:
-      - db
   nginx:
+    depends_on:
+      - app
     image: healthcareblocks/nginx
     environment:
       NGINX_BACKEND_SERVER_ADDRESS: app
@@ -30,11 +34,10 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    restart: always
     volumes:
       - /etc/ssl/certs/dhparam.pem:/nginx/ssl/dhparam.pem
       - /etc/ssl/certs/app.crt:/nginx/ssl/app.crt
       - /etc/ssl/private/app.key:/nginx/ssl/app.key
     volumes_from:
-      - app
-    depends_on:
       - app
